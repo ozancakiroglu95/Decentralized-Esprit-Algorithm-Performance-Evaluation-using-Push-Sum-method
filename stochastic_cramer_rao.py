@@ -4,8 +4,8 @@ def cramer_rao(A, signal, angles, locations):
     
     noise = 1
     N_sample = signal.shape[1]
-    S = signal.dot(signal.conj().T)
-    P_A = np.identity(12) - A.dot(np.linalg.inv(A.conj().T.dot(A))).dot(A.conj().T)
+    S = (signal.dot(signal.conj().T))/N_sample
+    P_A = np.identity(12) - A.dot(np.linalg.pinv(A.conj().T.dot(A))).dot(A.conj().T)
     U = S.dot(np.linalg.inv((A.conj().T).dot(A).dot(S) + noise*np.identity(3))).dot((A.conj().T).dot(A).dot(S))
 
     # Direction of arrivals
@@ -46,7 +46,7 @@ def cramer_rao(A, signal, angles, locations):
     # shape should be 33*33 of both of them
     first_matrix = np.kron(np.ones((11,1)).dot(np.ones((1,11))), U)
     second_matrix = (D.conj().T.dot(P_A).dot(D)).T
-    cramer_rao = np.sqrt(1/(2*N_sample)*np.mean(np.diag(1/(np.real(np.multiply(first_matrix,second_matrix))))))*360/(2*np.pi)
+    cramer_rao = 1/(2*N_sample)*np.mean(np.diag(1/(np.real(np.multiply(first_matrix,second_matrix))))[0:3])
     
     return cramer_rao
     

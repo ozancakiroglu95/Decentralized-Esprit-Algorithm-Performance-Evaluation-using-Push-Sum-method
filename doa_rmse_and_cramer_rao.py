@@ -64,6 +64,7 @@ def rmse_and_cramer_rao(SNR_range, N_samples_range, iteration, A, angles, locati
                 noise = np.random.normal(0,np.sqrt(0.5),(12,N_samples)) + 1j*np.random.normal(0,np.sqrt(0.5),(12,N_samples))
                 noise_power  = sum(sum(np.abs(noise)**2))/(12*N_samples)
                 if i == 0:
+                    print()
                     print("SIGNAL POWER")
                     print(signal_power)
                     print("NOISE POWER")
@@ -75,7 +76,7 @@ def rmse_and_cramer_rao(SNR_range, N_samples_range, iteration, A, angles, locati
                 z = A.dot(signal) + noise
 
                 # Sample covariance matrix
-                R_sample = z.dot(z.conj().T)
+                R_sample = z.dot(z.conj().T)/N_samples
 
                 # Eigenvalue and eigenvectors
                 w_sample, v_sample = np.linalg.eig(R_sample)
@@ -111,12 +112,12 @@ def rmse_and_cramer_rao(SNR_range, N_samples_range, iteration, A, angles, locati
                               [0  ,0  ,0  ,0.4,0.6,0.6]])
 
                 # Average-Consensus Matrix (shape: (6,6))
-                P_ave = np.array([[0.5,0.25,0.25,0  ,0  ,0],
-                              [0.25,0.5,0.25,0  ,0  ,0],
-                              [0.25,0.25,0.25,0.25,0  ,0],
-                              [0  ,0  ,0.25,0.25,0.25,0.25],
-                              [0  ,0  ,0  ,0.25,0.5,0.25],
-                              [0  ,0  ,0  ,0.25,0.25,0.5]])
+                P_ave = np.array([[0.17,0.5,0.33,0  ,0  ,0],
+                                  [0.5,0.17,0.33,0  ,0  ,0],
+                                  [0.33,0.33,0.01,0.33,0  ,0],
+                                  [0  ,0  ,0.33,0.01,0.33,0.33],
+                                  [0  ,0  ,0  ,0.33,0.17,0.5],
+                                  [0  ,0  ,0  ,0.33,0.5,0.17]])
 
                 # Weight Vector  (shape: (6,1))
                 w = np.atleast_2d([1,1,1,1,1,1]).T
@@ -187,7 +188,7 @@ def rmse_and_cramer_rao(SNR_range, N_samples_range, iteration, A, angles, locati
                             print("RMSE")
                             print(np.sqrt(MSE[N_samples - N_samples_zero]))
                     elif return_name == "cramer":
-                        cramer[N_samples - N_samples_zero] = cramer[N_samples - N_samples_zero]+(1/500)*cramer_rao(A, signal, angles, locations)
+                        cramer[N_samples - N_samples_zero] = cramer[N_samples - N_samples_zero]+(1/500)*np.sqrt(cramer_rao(A, signal, angles, locations))*360/(2*np.pi)
                         if i == 499: 
                             print("Cramer Rao Bound")
                             print(np.sqrt(cramer[N_samples - N_samples_zero]))
@@ -199,13 +200,13 @@ def rmse_and_cramer_rao(SNR_range, N_samples_range, iteration, A, angles, locati
                             print("RMSE")
                             print(np.sqrt(MSE[snr_dB - SNR_zero]))
                     elif return_name == "cramer":
-                        cramer[snr_dB - SNR_zero] = cramer[snr_dB - SNR_zero]+(1/500)*cramer_rao(A, signal, angles, locations)
+                        cramer[snr_dB - SNR_zero] = cramer[snr_dB - SNR_zero]+(1/500)*np.sqrt(cramer_rao(A, signal, angles, locations))*360/(2*np.pi)
                         if i == 499:
                             print("Cramer Rao Bound")
-                            print(np.sqrt(cramer[snr_dB - SNR_zero]))
+                            print((cramer[snr_dB - SNR_zero]))
                             
     if return_name == "rmse":
         return np.sqrt(MSE)
     elif return_name == "cramer":
-        return np.sqrt(cramer)
+        return cramer
     
