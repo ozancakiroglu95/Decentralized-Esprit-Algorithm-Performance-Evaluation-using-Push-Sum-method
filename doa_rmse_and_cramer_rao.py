@@ -48,10 +48,11 @@ def rmse_and_cramer_rao(SNR_range, N_samples_range, iteration, A, angles, locati
             for i in range(500):
 
                 # Signal(A*s) to noise(n) ratio
-                received_snr = 10**(snr_dB/20)
+                received_snr = 10**(snr_dB/10)
                 ratio_As_to_s = 1/4
                 snr = received_snr*ratio_As_to_s
-
+                #snr = received_snr
+                
                 # Source signal implementation (shape: (3,500))
                 signal = np.random.normal(0,np.sqrt(snr),(3,N_samples))
                 #w = np.atleast_2d([np.pi/3, np.pi/4, np.pi/5]).T
@@ -63,14 +64,14 @@ def rmse_and_cramer_rao(SNR_range, N_samples_range, iteration, A, angles, locati
                 # Noise signal implementation (shape: (12,500))
                 noise = np.random.normal(0,np.sqrt(0.5),(12,N_samples)) + 1j*np.random.normal(0,np.sqrt(0.5),(12,N_samples))
                 noise_power  = sum(sum(np.abs(noise)**2))/(12*N_samples)
-                if i == 0:
-                    print()
-                    print("SIGNAL POWER")
-                    print(signal_power)
-                    print("NOISE POWER")
-                    print(noise_power)
-                    print("SIGNAL TO NOISE RATIO")
-                    print(signal_power/noise_power)
+                #if i == 0:
+                #    print()
+                #    print("SIGNAL POWER")
+                #    print(signal_power)
+                #    print("NOISE POWER")
+                #    print(noise_power)
+                #    print("SIGNAL TO NOISE RATIO")
+                #    print(signal_power/noise_power)
 
                 # Received signal (shape: (12,500))
                 z = A.dot(signal) + noise
@@ -81,13 +82,13 @@ def rmse_and_cramer_rao(SNR_range, N_samples_range, iteration, A, angles, locati
                 # Eigenvalue and eigenvectors
                 w_sample, v_sample = np.linalg.eig(R_sample)
                 
-                if i == 0 and snr_dB == -20:
-                    print()
-                    print("EIGENVALUES OF SAMPLE COVARIANCE MATRIX")
-                    print(w_sample[0])
-                    print(w_sample[1])
-                    print(w_sample[2])
-                    print(w_sample[3])
+                #if i == 0 and snr_dB == -20:
+                #    print()
+                #    print("EIGENVALUES OF SAMPLE COVARIANCE MATRIX")
+                #    print(w_sample[0])
+                #    print(w_sample[1])
+                #    print(w_sample[2])
+                #    print(w_sample[3])
 
                 # Sensor Selection Matrix (shape: (12,6))
                 T = np.array([[1,0,0,0,0,0],
@@ -167,16 +168,16 @@ def rmse_and_cramer_rao(SNR_range, N_samples_range, iteration, A, angles, locati
                 doa.append(np.arcsin(np.angle(w2[1])/np.pi)*360/(2*np.pi))
                 doa.append(np.arcsin(np.angle(w2[2])/np.pi)*360/(2*np.pi))
 
-                if i == 0:
-                    print()
-                    print("  DOAs of the source signals in degrees with SNR: " + str(snr_dB) )
-                    print("  DOAs of the source signals in degrees with N_samples: " + str(N_samples) )
-                    print("****************************************************************")
-                    print("****************************************************************")
-                    print("DOA of the first source signal:   " + str(doa[0]))
-                    print("DOA of the second source signal:   " + str(doa[1]))
-                    print("DOA of the third source signal:   " + str(doa[2]))
-
+                #if i == 0:
+                #    print()
+                #    print("  DOAs of the source signals in degrees with SNR: " + str(snr_dB) )
+                #    print("  DOAs of the source signals in degrees with N_samples: " + str(N_samples) )
+                #    print("****************************************************************")
+                #    print("****************************************************************")
+                #    print("DOA of the first source signal:   " + str(doa[0]))
+                #    print("DOA of the second source signal:   " + str(doa[1]))
+                #    print("DOA of the third source signal:   " + str(doa[2]))
+                
                 diff_1 = min(abs(doa[0]-(angles*360/(2*np.pi))))
                 diff_2 = min(abs(doa[1]-(angles*360/(2*np.pi))))
                 diff_3 = min(abs(doa[2]-(angles*360/(2*np.pi))))
@@ -203,7 +204,7 @@ def rmse_and_cramer_rao(SNR_range, N_samples_range, iteration, A, angles, locati
                         cramer[snr_dB - SNR_zero] = cramer[snr_dB - SNR_zero]+(1/500)*np.sqrt(cramer_rao(A, signal, angles, locations))*360/(2*np.pi)
                         if i == 499:
                             print("Cramer Rao Bound")
-                            print((cramer[snr_dB - SNR_zero]))
+                            print(np.sqrt(cramer[snr_dB - SNR_zero]))
                             
     if return_name == "rmse":
         return np.sqrt(MSE)
